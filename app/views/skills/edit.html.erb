@@ -1,0 +1,43 @@
+<% content_for :title, "Edit Skill: #{@skill.name}" %>
+
+<div class="container">
+  <%= link_to "← Back to Dashboard", dashboard_path %>
+  
+  <h1>Edit Skill: <%= @skill.name %></h1>
+  
+  <%= form_with model: @skill, local: true do |form| %>
+    <% if @skill.errors.any? %>
+      <div class="error-messages">
+        <h4><%= pluralize(@skill.errors.count, "error") %> prohibited this skill from being saved:</h4>
+        <ul>
+          <% @skill.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= form.label :name %>
+      <%= form.text_field :name %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :proficiency %>
+      <%= form.select :proficiency, options_for_select([
+        ['Beginner', 1],
+        ['Intermediate', 2], 
+        ['Advanced', 3]
+      ], @skill.proficiency) %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :logo_url, "Logo URL (optional)" %>
+      <%= form.url_field :logo_url %>
+    </div>
+
+    <div class="form-actions">
+      <%= form.submit "Update Skill" %>
+    </div>
+  <% end %>
+</div>

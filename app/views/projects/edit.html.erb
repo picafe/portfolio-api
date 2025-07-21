@@ -1,0 +1,100 @@
+<% content_for :title, "Edit #{@project.title}" %>
+
+<div class="container">
+  <%= link_to "← Back to Projects", projects_path %>
+
+  <h1>Edit Project</h1>
+  
+  <%= form_with model: @project, local: true, multipart: true do |form| %>
+    <% if @project.errors.any? %>
+      <div class="error-messages">
+        <h4><%= pluralize(@project.errors.count, "error") %> prohibited this project from being saved:</h4>
+        <ul>
+          <% @project.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= form.label :title %>
+      <%= form.text_field :title, placeholder: "e.g., Portfolio Website" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :description %>
+      <%= form.text_area :description, rows: 4, placeholder: "Describe your project..." %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :cover_image, "Cover Image" %>
+      <%= form.file_field :cover_image, accept: "image/*" %>
+      <% if @project.cover_image.attached? %>
+        <div class="current-image">
+          <%= image_tag @project.cover_image, style: "max-width: 200px;" %>
+          <p>Current cover image</p>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :new_gallery_images, "Add New Gallery Images" %>
+      <%= form.file_field :new_gallery_images, multiple: true, accept: "image/*" %>
+      <small>Select new images</small>
+
+      <% if @project.gallery_images.any? %>
+        <div class="current-gallery mt-4">
+          <h4>Current Gallery Images:</h4>
+          <div class="gallery-preview grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+            <% @project.gallery_images.each_with_index do |image, index| %>
+              <div class="gallery-item relative">
+                <%= image_tag image, class: "w-full h-32 object-cover rounded" %>
+                <%= link_to "&#10005;".html_safe, 
+                    remove_gallery_image_project_path(@project, attachment_id: image.id), 
+                    method: :delete,
+                    class: "absolute top-1 right-1 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-black hover:bg-red-700",
+                    data: { 
+                      turbo_confirm: "Are you sure you want to remove this image?",
+                      turbo_method: :delete
+                    },
+                    title: "Remove image" %>
+              </div>
+            <% end %>
+          </div>
+          <small class="text-gray-600">Click the x to remove images</small>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :live_url, "Live URL (optional)" %>
+      <%= form.url_field :live_url, placeholder: "https://yourproject.com" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :github_url, "GitHub URL (optional)" %>
+      <%= form.url_field :github_url, placeholder: "https://github.com/username/repo" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :tools_used, "Tools & Technologies" %>
+      <%= form.text_field :tools_used, placeholder: "Ruby, Rails, JavaScript, CSS" %>
+      <small>Separate multiple tools with commas (strict formatting)</small>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :timeline %>
+      <%= form.text_area :timeline, rows: 3, placeholder: "Project timeline and milestones..." %>
+    </div>
+
+    <div class="form-group">
+      <%= form.check_box :featured %>
+      <%= form.label :featured, "Featured Project" %>
+    </div>
+
+    <div class="form-actions mt-4">
+      <%= form.submit "Update Project" %>
+    </div>
+  <% end %>
+</div>

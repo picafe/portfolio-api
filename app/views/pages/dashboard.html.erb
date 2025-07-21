@@ -1,0 +1,169 @@
+<% content_for :title, "Dashboard - Portfolio CMS" %>
+
+<div class="container">
+  <header class="mb-6 pb-4 border-b border-gray-500">
+    <div class="flex justify-between items-center">
+      <h1>Portfolio CMS Dashboard</h1>
+      <%= button_to "Logout", session_path, method: :delete, class: "contrast",
+          data: { turbo_confirm: "Are you sure?" } %>
+    </div>
+    <h3>Welcome, <%= Current.user.name %>!</h3>
+
+  </header>
+
+  <main class="flex flex-col">
+
+    <section class="cms-section">
+      <h2>Edit Projects</h2>
+      <%= button_to "Manage Projects", projects_path, class: "outline", method: :get %>
+    </section>
+    <!-- Homepage Section -->
+    <section class="cms-section">
+      <h2>Homepage Section</h2>
+      <%= form_with model: @homepage_section, url: homepage_section_path(@homepage_section), method: :patch, local: true do |form| %>
+        <div class="form-group">
+          <%= form.label :description %>
+          <%= form.text_area :description, rows: 4, placeholder: "Enter your portfolio description..." %>
+          <% if @homepage_section.errors[:description].any? %>
+            <small class="error"><%= @homepage_section.errors[:description].first %></small>
+          <% end %>
+        </div>
+        
+        <div class="form-group mb-4">
+          <%= form.check_box :particle_effects_enabled %>
+          <%= form.label :particle_effects_enabled, "Enable particle effects" %>
+        </div>
+        
+        <%= form.submit "Update Homepage" %>
+      <% end %>
+    </section>
+
+    <!-- Skills Section -->
+    <section class="cms-section">
+      <header class="section-header">
+        <h2>Skills</h2>
+        <%= link_to "Add New Skill", new_skill_path, class: "outline", role: "button" %>
+      </header>
+      
+      <div class="skills-list">
+        <% @skills.each do |skill| %>
+          <article class="flex justify-between items-center p-2 m-2 skill-card">
+            <div class="flex items-center gap-4">
+              <% if skill.logo_url.present? %>
+                <img src="<%= skill.logo_url %>" alt="<%= skill.name %>" class="max-w-xs">
+              <% end %>
+              <div>
+                <h4><%= skill.name %></h4>
+                <small>Proficiency: <%= skill.proficiency_text %></small>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <%= button_to "Edit", edit_skill_path(skill), class: "secondary", method: :get %>
+              <%= button_to "Delete", skill_path(skill), method: :delete, 
+                  class: "contrast", data: { turbo_confirm: "Are you sure?" } %>
+            </div>
+          </article>
+        <% end %>
+        
+        <% if @skills.empty? %>
+          <p>No skills added yet.</p>
+        <% end %>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="cms-section">
+      <h2>Contact Information</h2>
+      <%= form_with model: @contact, url: contact_path(@contact), method: :patch, local: true do |form| %>
+        <div class="form-group">
+          <%= form.label :email %>
+          <%= form.email_field :email, placeholder: "your.email@example.com" %>
+          <% if @contact.errors[:email].any? %>
+            <small class="error"><%= @contact.errors[:email].first %></small>
+          <% end %>
+        </div>
+        
+        <div class="form-group">
+          <%= form.label :github_url, "GitHub URL" %>
+          <%= form.url_field :github_url, placeholder: "https://github.com/yourusername" %>
+          <% if @contact.errors[:github_url].any? %>
+            <small class="error"><%= @contact.errors[:github_url].first %></small>
+          <% end %>
+        </div>
+        
+        <fieldset>
+          <legend>Social Media Links</legend>
+          <div id="socials-container">
+            <%= form.fields_for :socials do |social_form| %>
+              <div class="social-item flex items-center gap-2 justify-center mb-2">
+                <%= social_form.text_field :name, placeholder: "Platform name" %>
+                <%= social_form.url_field :url, placeholder: "https://..." %>
+                <%= social_form.url_field :logo_url, placeholder: "Logo URL (optional)" %>
+                <%= social_form.check_box :_destroy, style: "display:none;", onchange: "toggleStrikeThrough(this)" %>
+                <%= social_form.label :_destroy, "&#10005;".html_safe, class: "remove-social-label", style: "cursor:pointer; color:#dc2626; font-size:1.2em; margin-left:0.5em;" %>
+              </div>
+            <% end %>
+          </div>
+          
+          <button type="button" onclick="addSocialField()" class="outline">Add Social Link</button>
+        </fieldset>
+        
+        <%= form.submit "Update Contact Info" %>
+      <% end %>
+    </section>
+  </main>
+</div>
+
+<style>
+  .cms-section {
+    background: var(--pico-card-background-color);
+    padding: 1.5rem;
+    border-radius: var(--pico-border-radius);
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .skill-card {
+    background: var(--pico-background-color);
+    border-radius: var(--pico-border-radius);
+  }
+
+  .error {
+    color: var(--pico-del-color);
+  }
+
+  .social-item input {
+    margin-bottom: 0;
+  }
+</style>
+
+<script>
+  function addSocialField() {
+    const container = document.getElementById('socials-container');
+    const index = container.children.length;
+    const html = `
+      <div class="social-item flex items-center gap-2 justify-center mb-2">
+        <input type="text" name="contact[socials_attributes][${index}][name]" placeholder="Platform name">
+        <input type="url" name="contact[socials_attributes][${index}][url]" placeholder="https://...">
+        <input type="url" name="contact[socials_attributes][${index}][logo_url]" placeholder="Logo URL (optional)">
+        <input type="checkbox" name="contact[socials_attributes][${index}][_destroy]" value="1" id="social-destroy-${index}" style="display:none;" onchange="toggleStrikeThrough(this)">
+        <label for="social-destroy-${index}" class="remove-social-label" style="cursor:pointer; color:#dc2626; font-size:1.2em; margin-left:0.5em;">&#10005;</label>
+      </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+  }
+
+  function toggleStrikeThrough(checkbox) {
+    const socialItem = checkbox.closest('.social-item');
+    if (checkbox.checked) {
+      socialItem.style.opacity = '0.6';
+    } else {
+      socialItem.style.opacity = '';
+    }
+  }
+</script>

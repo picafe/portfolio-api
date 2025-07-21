@@ -1,0 +1,61 @@
+<% content_for :title, @project.title %>
+
+<div class="container">
+  <%= link_to "← Back to Projects", projects_path %>
+  
+  <div class="project-header">
+    <h1><%= @project.title %></h1>
+    
+    <div class="project-links">
+      <% if @project.live_url.present? %>
+        <%= link_to "View Live", @project.live_url, target: "_blank", class: "btn btn-primary" %>
+      <% end %>
+      <% if @project.github_url.present? %>
+        <%= link_to "GitHub", @project.github_url, target: "_blank", class: "btn secondary" %>
+      <% end %>
+      <%= link_to "Edit", edit_project_path(@project), class: "btn secondary" %>
+    </div>
+  </div>
+  
+  <% if @project.cover_image.attached? %>
+    <div class="project-cover-large">
+      <%= image_tag @project.cover_image, alt: @project.title %>
+    </div>
+  <% end %>
+  
+  <div class="project-details">
+    <div class="project-description">
+      <h2>Description</h2>
+      <p><%= simple_format(@project.description) %></p>
+    </div>
+    
+    <div class="project-tools">
+      <h3>Tools & Technologies</h3>
+      <div class="tools-list">
+        <% @project.tools_array.each do |tool| %>
+          <span class="tool-tag"><%= tool %></span>
+        <% end %>
+      </div>
+    </div>
+    
+    <% if @project.timeline.present? %>
+      <div class="project-timeline">
+        <h3>Timeline</h3>
+        <p><%= simple_format(@project.timeline) %></p>
+      </div>
+    <% end %>
+    
+    <% if @project.gallery_images.attached? && @project.gallery_images.any? %>
+      <div class="project-gallery">
+        <h3>Gallery</h3>
+        <div class="gallery-grid">
+          <% @project.gallery_images.each do |image| %>
+            <div class="gallery-item">
+              <%= image_tag image, alt: "#{@project.title} screenshot" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
