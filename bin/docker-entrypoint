@@ -8,13 +8,9 @@ fi
 
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
-  # Prepare all databases (primary, cache, queue, cable)
-  ./bin/rails db:prepare
-  # Explicitly run migrations for cache database
-  ./bin/rails db:migrate:cache
-  # Run migrations for queue and cable if you're using them
-  ./bin/rails db:migrate:queue
-  ./bin/rails db:migrate:cable
+  # Create and migrate all databases
+  ./bin/rails db:create:all
+  ./bin/rails db:migrate:all
 fi
 
 exec "${@}"
