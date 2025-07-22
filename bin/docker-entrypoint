@@ -8,7 +8,25 @@ fi
 
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
-  ./bin/rails db:prepare
+  echo "=== Database Setup Debug ==="
+  
+  echo "Current environment: $RAILS_ENV"
+  echo "Available migration paths:"
+  ls -la db/
+  
+  echo "Cache migrate directory:"
+  ls -la db/cache_migrate/ || echo "cache_migrate directory not found"
+  
+  echo "Running database setup..."
+  ./bin/rails db:create:all
+  
+  echo "Running primary migrations..."
+  ./bin/rails db:migrate
+  
+  echo "Running cache migrations..."
+  RAILS_DB=cache ./bin/rails db:migrate
+  
+  echo "=== End Database Setup ==="
 fi
 
 exec "${@}"
